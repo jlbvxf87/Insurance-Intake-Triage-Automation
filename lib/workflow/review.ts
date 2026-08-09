@@ -21,6 +21,21 @@ import { WORKFLOW_NAME } from './run-logger'
 import { buildConfirmation, type ConfirmationInput } from './notifications'
 import type { ConfirmationEvent } from '../domain/types'
 
+/**
+ * A review action the caller asked for that the current record does not
+ * support — as distinct from a bug. Carries the HTTP status the API should
+ * return, so the route does not have to pattern-match on message text.
+ */
+export class ReviewActionError extends Error {
+  constructor(
+    message: string,
+    readonly status: 404 | 409 = 409,
+  ) {
+    super(message)
+    this.name = 'ReviewActionError'
+  }
+}
+
 export type ReviewAction =
   /** Reviewer accepted the submission — release it to its team. */
   | { type: 'release'; note?: string }
@@ -69,7 +84,7 @@ export async function applyReviewAction(
 
   const submission = await repository.getSubmission(submissionId)
   if (!submission) {
-    throw new Error(`Submission ${submissionId} not found.`)
+    throw new ReviewActionError(`Submission ${submissionId} not found.`, 404)
   }
 
   let patch: Partial<Submission> = {}
@@ -79,6 +94,12 @@ export async function applyReviewAction(
   switch (action.type) {
     case 'release':
     case 'dismiss-duplicate': {
+      if (action.type === 'dismiss-duplicate' && !submission.duplicateFlag) {
+        throw new ReviewActionError(
+          `Submission ${submissionId} is not flagged as a possible duplicate. Use "release" instead.`,
+        )
+      }
+
       const routing = resolveTeam(submission.lineOfBusiness)
       const target: SubmissionStatus = 'Routed'
       assertTransition(submission.status, target)
@@ -114,6 +135,15 @@ export async function applyReviewAction(
     }
 
     case 'confirm-duplicate': {
+      // Guarded separately from the transition table. `Routed → Closed` is a
+      // legal move, so the state machine alone would let an operator "confirm
+      // a duplicate" on a submission that was never flagged as one — and the
+      // resulting log entry would assert something untrue about why it closed.
+      if (!submission.duplicateFlag) {
+        throw new ReviewActionError(
+          `Submission ${submissionId} is not flagged as a possible duplicate. Use "close" instead.`,
+        )
+      }
       assertTransition(submission.status, 'Closed')
       patch = { status: 'Closed', needsHumanReview: false }
       detail = `Confirmed as a duplicate by ${actor}${
@@ -127,7 +157,10 @@ export async function applyReviewAction(
     case 'correct-extraction': {
       const extraction = await repository.getExtractionBySubmission(submissionId)
       if (!extraction) {
-        throw new Error(`No extraction record exists for ${submissionId}.`)
+        throw new ReviewActionError(
+          `No extraction record exists for ${submissionId}.`,
+          404,
+        )
       }
 
       const applied = Object.entries(action.corrections).filter(

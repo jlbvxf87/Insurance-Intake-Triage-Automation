@@ -18,11 +18,11 @@ documents into structured, validated, routed records.
 | 0 | Repository + project scaffold | ✅ Complete |
 | 1 | Business analysis documentation | ✅ Complete |
 | 2 | Data model | ✅ Complete |
-| 3 | Digital intake | ⬜ Not started |
-| 4 | Azure AI Document Intelligence | ⬜ Not started |
-| 5 | Workflow / automation logic | ⬜ Not started |
-| 6 | Error handling + human review | ⬜ Not started |
-| 7 | Operations dashboard | ⬜ Not started |
+| 3 | Digital intake | ✅ Complete |
+| 4 | Azure AI Document Intelligence | ✅ Complete |
+| 5 | Workflow / automation logic | ✅ Complete |
+| 6 | Error handling + human review | ✅ Complete |
+| 7 | Operations dashboard | ✅ Complete |
 | 8 | Testing + documentation | ⬜ Not started |
 | 9 | Portfolio case-study page | ⬜ Not started |
 | 10 | Walkthrough video | ⬜ Not started |

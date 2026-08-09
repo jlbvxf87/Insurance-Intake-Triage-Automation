@@ -100,6 +100,7 @@ export async function runIntakeWorkflow(
   let duplicateFlag = false
   let confidenceScore: number | null = null
   let extractionProvider: string | null = null
+  let record: AutomationLog
   let assignedTeam: Submission['assignedTeam'] = 'Unassigned'
 
   try {
@@ -374,34 +375,40 @@ export async function runIntakeWorkflow(
     // -- FINALLY (FR-032, FR-034) -----------------------------------------
     // Runs on every path. A run that produced no log would be a run nobody
     // could audit, which is the failure this whole layer exists to prevent.
-    const record = log.finish(submissionId, runStatusFor(status))
+    //
+    // Deliberately does NOT return from here: a `return` inside `finally`
+    // swallows anything still propagating, which would turn a future bug in
+    // the catch block into silence. The record is assigned and the function
+    // returns below.
+    record = log.finish(submissionId, runStatusFor(status))
     try {
       await repository.createLog(record)
     } catch {
       // The log store itself failed. Nothing further can be recorded through
       // it; the record is still returned to the caller so the failure is not
-      // invisible.
+      // invisible. A production deployment would want a second sink here —
+      // see power-automate/error-handling.md §3, row 17.
     }
-    // eslint-disable-next-line no-unsafe-finally
-    return {
-      response: buildResponse({
-        submissionId,
-        status,
-        assignedTeam,
-        needsHumanReview,
-        reviewReasons,
-        duplicateFlag,
-        confidenceScore,
-        extractionProvider,
-      }),
+  }
+
+  return {
+    response: buildResponse({
       submissionId,
       status,
-      client,
-      submission,
-      extraction,
-      confirmation,
-      log: record,
-    }
+      assignedTeam,
+      needsHumanReview,
+      reviewReasons,
+      duplicateFlag,
+      confidenceScore,
+      extractionProvider,
+    }),
+    submissionId,
+    status,
+    client,
+    submission,
+    extraction,
+    confirmation,
+    log: record,
   }
 }
 

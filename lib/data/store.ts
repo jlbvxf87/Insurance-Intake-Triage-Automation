@@ -17,7 +17,6 @@ import type { Repository } from './repository'
  */
 
 declare global {
-  // eslint-disable-next-line no-var
   var __iitRepository: InMemoryRepository | undefined
 }
 

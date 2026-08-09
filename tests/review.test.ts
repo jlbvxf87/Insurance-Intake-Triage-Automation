@@ -278,3 +278,80 @@ describe('human review actions (FR-010, FR-011)', () => {
     ).rejects.toThrow(/No extraction record/)
   })
 })
+
+describe('review action guards', () => {
+  it('refuses to confirm a duplicate on a submission that was never flagged', async () => {
+    const routed = await runIntakeWorkflow({
+      input: validInput({ email: 'notdupe@harborworks.example', lineOfBusiness: 'Property' }),
+      document: null,
+      repository,
+      config: testConfig(),
+      extractor: instantExtractor(),
+      now: NOW,
+    })
+    expect(routed.status).toBe('Routed')
+
+    // Routed -> Closed is a legal transition, so the state machine alone would
+    // allow this. The guard exists because the resulting log entry would
+    // assert something untrue about why the submission closed.
+    await expect(
+      applyReviewAction({
+        submissionId: routed.submissionId,
+        action: { type: 'confirm-duplicate' },
+        repository,
+        actor: 'j.baston',
+        now: NOW,
+      }),
+    ).rejects.toThrow(/not flagged as a possible duplicate/)
+  })
+
+  it('refuses to dismiss a duplicate flag that does not exist', async () => {
+    const routed = await runIntakeWorkflow({
+      input: validInput({ email: 'notdupe2@harborworks.example', lineOfBusiness: 'Property' }),
+      document: null,
+      repository,
+      config: testConfig(),
+      extractor: instantExtractor(),
+      now: NOW,
+    })
+
+    await expect(
+      applyReviewAction({
+        submissionId: routed.submissionId,
+        action: { type: 'dismiss-duplicate' },
+        repository,
+        actor: 'j.baston',
+        now: NOW,
+      }),
+    ).rejects.toThrow(/not flagged as a possible duplicate/)
+  })
+})
+
+describe('identifier allocation', () => {
+  it('never reuses an id already taken by seeded data', async () => {
+    const repo = freshRepository()
+    const seededLogIds = new Set((await repo.listLogs()).map((l) => l.logId))
+
+    const submitted = await runIntakeWorkflow({
+      input: validInput({ email: 'ids@harborworks.example', lineOfBusiness: 'Property' }),
+      document: null,
+      repository: repo,
+      config: testConfig(),
+      extractor: instantExtractor(),
+      now: NOW,
+    })
+
+    expect(seededLogIds.has(submitted.log.logId)).toBe(false)
+
+    const review = await applyReviewAction({
+      submissionId: submitted.submissionId,
+      action: { type: 'close' },
+      repository: repo,
+      actor: 'j.baston',
+      now: NOW,
+    })
+
+    expect(seededLogIds.has(review.log.logId)).toBe(false)
+    expect(review.log.logId).not.toBe(submitted.log.logId)
+  })
+})

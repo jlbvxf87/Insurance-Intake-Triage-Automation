@@ -15,6 +15,7 @@
 
 import type {
   AutomationLog,
+  AutomationStepRecord,
   Client,
   ExtractedPolicyData,
   Submission,
@@ -658,6 +659,117 @@ export interface SeedData {
  * Also advances the id counters past the seeded range so ids generated at
  * runtime cannot collide with seeded ones.
  */
+
+/**
+ * Reconstructs the step trace a seeded run would have produced.
+ *
+ * Seeded records exist to make the dashboard demonstrable, and a run with an
+ * empty trace shows the operator a blank panel where the most useful part of
+ * the audit trail should be. The details here mirror exactly what
+ * `lib/workflow/orchestrator.ts` writes for the same outcome, so the demo
+ * shows the real thing rather than a placeholder.
+ */
+function buildStepTrace(
+  spec: SubmissionSpec,
+  received: string,
+): AutomationStepRecord[] {
+  const steps: AutomationStepRecord[] = []
+  let offset = 0
+
+  const push = (
+    step: AutomationStepRecord['step'],
+    outcome: AutomationStepRecord['outcome'],
+    detail: string,
+    durationMs: number,
+  ) => {
+    offset += durationMs
+    steps.push({
+      step,
+      outcome,
+      detail,
+      at: new Date(new Date(received).getTime() + offset).toISOString(),
+      durationMs,
+    })
+  }
+
+  const client = CLIENT_SPECS.find((c) => c.id === spec.clientId)
+  const email = normalizeEmail(client?.email ?? 'unknown@example')
+
+  push('Validate Submission', 'ok', `Fields validated. Email normalized to ${email}.`, 12)
+  push('Resolve Client', 'ok', `Matched existing client ${spec.clientId} on normalized email.`, 34)
+
+  push(
+    'Duplicate Check',
+    'ok',
+    spec.duplicateOf
+      ? `Possible duplicate of ${spec.duplicateOf}.`
+      : 'No duplicate found inside a 30-day window.',
+    41,
+  )
+
+  if (!spec.document) {
+    push('Extract Document', 'skipped', 'No document supplied — extraction skipped.', 0)
+    push('Validate Extraction', 'skipped', 'No extraction to validate.', 0)
+  } else if (spec.failure) {
+    push(
+      'Extract Document',
+      'failed',
+      `${spec.failure.step === 'Extract Document' ? 'service_error' : 'error'}: ${spec.failure.message}`,
+      30_800,
+    )
+    push('Validate Extraction', 'ok', 'Extraction failed — nothing to validate.', 2)
+  } else {
+    push(
+      'Extract Document',
+      'ok',
+      `Extracted with fixture (fixture:seeded) in 1900 ms.`,
+      1_900,
+    )
+    const confidence = spec.confidence ?? 0
+    const missing = spec.extraction?.missingFields ?? []
+    push(
+      'Validate Extraction',
+      'ok',
+      `Confidence ${confidence.toFixed(2)} against threshold 0.80. ` +
+        `Validation status ${spec.extraction?.validationStatus ?? 'Not Applicable'}.` +
+        (missing.length ? ` Missing: ${missing.join(', ')}.` : ''),
+      18,
+    )
+  }
+
+  push(
+    'Apply Business Rules',
+    'ok',
+    `${spec.lob} → ${spec.team}` +
+      (spec.reviewReasons?.includes('Unknown Routing Rule')
+        ? ' (no matching rule — General Intake + review)'
+        : '') +
+      `. Outcome ${spec.status}.` +
+      (spec.reviewReasons?.length ? ` Reasons: ${spec.reviewReasons.join(', ')}.` : ''),
+    9,
+  )
+
+  push('Persist Records', 'ok', `Submission ${spec.id} updated to ${spec.status}.`, 22)
+
+  if (spec.status === 'Routed') {
+    push(
+      'Send Confirmation',
+      'ok',
+      `Acknowledgement generated for ${client?.email ?? 'the submitter'} via log.`,
+      31,
+    )
+  } else {
+    push(
+      'Send Confirmation',
+      'skipped',
+      `Status ${spec.status} — no routing confirmation sent to the submitter.`,
+      0,
+    )
+  }
+
+  return steps
+}
+
 export function createSeedData(now: Date = new Date()): SeedData {
   const base = now.getTime()
 
@@ -750,7 +862,7 @@ export function createSeedData(now: Date = new Date()): SeedData {
       errorMessage: spec.failure?.message ?? null,
       retryCount: spec.failure?.retries ?? 0,
       durationMs,
-      steps: [],
+      steps: buildStepTrace(spec, received),
     })
   }
 
