@@ -53,7 +53,17 @@ const FIELD_ALIASES: Record<string, keyof NormalizedExtraction> = {
 const normalizeLabel = (label: string) =>
   label.toLowerCase().replace(/[^a-z0-9]/g, '')
 
-/** `$1,000,000` / `1.000.000,00` / `USD 1000000` → `1000000`. */
+/**
+ * `$1,000,000` / `1.000.000,00` / `USD 1000000` → `1000000`.
+ *
+ * Which separator is the decimal point is genuinely ambiguous — `1,000` is one
+ * thousand in the US and one in Germany — so the rules below are ordered from
+ * most to least certain rather than resolved by a single "last separator wins"
+ * heuristic. An earlier version of this function used that heuristic and
+ * silently returned null for `$1,000,000`, which a test caught: with three
+ * commas and no dot, "last separator is the decimal point" produced `1.000,000`
+ * and then `NaN`.
+ */
 export function parseCurrency(raw: string | number | undefined | null): number | null {
   if (typeof raw === 'number') return Number.isFinite(raw) ? raw : null
   if (!raw) return null
@@ -61,15 +71,33 @@ export function parseCurrency(raw: string | number | undefined | null): number |
   const cleaned = raw.replace(/[^\d.,-]/g, '')
   if (cleaned === '') return null
 
-  // Decide which separator is the decimal point by taking the last one seen.
-  const lastComma = cleaned.lastIndexOf(',')
-  const lastDot = cleaned.lastIndexOf('.')
-  let candidate = cleaned
+  const commas = (cleaned.match(/,/g) ?? []).length
+  const dots = (cleaned.match(/\./g) ?? []).length
+  let candidate: string
 
-  if (lastComma > lastDot) {
-    candidate = cleaned.replace(/\./g, '').replace(',', '.')
-  } else {
+  if (commas > 0 && dots > 0) {
+    // Both present: the last one is the decimal point, the other groups digits.
+    candidate =
+      cleaned.lastIndexOf(',') > cleaned.lastIndexOf('.')
+        ? cleaned.replace(/\./g, '').replace(/,/g, '.')
+        : cleaned.replace(/,/g, '')
+  } else if (commas > 1) {
+    // Repeated commas can only be digit grouping.
     candidate = cleaned.replace(/,/g, '')
+  } else if (dots > 1) {
+    // Repeated dots can only be digit grouping.
+    candidate = cleaned.replace(/\./g, '')
+  } else if (commas === 1) {
+    // One comma: decimal if one or two digits follow, otherwise grouping.
+    const after = cleaned.length - cleaned.indexOf(',') - 1
+    candidate = after <= 2 ? cleaned.replace(',', '.') : cleaned.replace(',', '')
+  } else if (dots === 1) {
+    // One dot: grouping only if exactly three digits follow, which is the
+    // European `1.000` case. Otherwise it is a decimal point.
+    const after = cleaned.length - cleaned.indexOf('.') - 1
+    candidate = after === 3 ? cleaned.replace('.', '') : cleaned
+  } else {
+    candidate = cleaned
   }
 
   const value = Number(candidate)
@@ -107,11 +135,15 @@ export function parsePolicyType(raw: string | undefined | null): PolicyType {
   const exact = POLICY_TYPES.find((t) => normalizeLabel(t) === normalized)
   if (exact) return exact
 
+  // Order matters. The bare `liability` fallback is deliberately last among the
+  // liability-ish patterns, because "Excess Liability" and "Umbrella Liability"
+  // both contain it — an earlier ordering classified "Excess Liability" as
+  // General Liability, which a test caught.
+  if (/umbrella|excess/.test(normalized)) return 'Umbrella'
   if (/commercialauto|businessauto|fleet|trucking/.test(normalized)) return 'Commercial Auto'
+  if (/workerscomp|workmanscomp|workerscompensation/.test(normalized)) return 'Workers Compensation'
   if (/property|building|contents/.test(normalized)) return 'Commercial Property'
   if (/generalliability|cgl|liability/.test(normalized)) return 'General Liability'
-  if (/workerscomp|workmanscomp|wc/.test(normalized)) return 'Workers Compensation'
-  if (/umbrella|excess/.test(normalized)) return 'Umbrella'
 
   return 'Unknown'
 }

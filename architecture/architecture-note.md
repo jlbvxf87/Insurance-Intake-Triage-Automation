@@ -168,12 +168,41 @@ without running the app.
 
 ## 6. Open questions carried into later phases
 
-| # | Question | Resolved in |
+| # | Question | Resolution |
 |---|---|---|
-| Q-1 | Which Document Intelligence model — `prebuilt-document` or a custom-trained ACORD model? | Phase 4 |
-| Q-2 | Is mean field confidence the right aggregate, or should the minimum field confidence gate review? | Phase 4 |
-| Q-3 | Should the duplicate window be global or per line of business? | Phase 5 |
-| Q-4 | Do exceptions retry automatically, or only on operator action? | Phase 6 |
+| Q-1 | Which Document Intelligence model? | **`prebuilt-document`.** No training corpus required, works on the first document of any layout. The model id is configuration and the normalization layer already reads both response shapes, so a custom-trained ACORD model is a config change rather than a rewrite. `ai/extraction-model.md` §2. |
+| Q-2 | Mean or minimum field confidence? | **Mean.** A single weak ancillary field should not send an otherwise clean extraction to review — the review queue is only useful while the things in it genuinely need a person. Bounded by the independent required-field check and by retaining per-field confidences. `ai/extraction-model.md` §5. |
+| Q-3 | Duplicate window global or per line of business? | **Global.** One `DUPLICATE_WINDOW_DAYS` value. Per-line windows would be more precise, but the rule is one an operations lead has to be able to explain to a client whose submission was held, and "30 days" is explainable in a way that a table of five different windows is not. Revisit if a line shows a materially different re-submission pattern. |
+| Q-4 | Do exceptions retry automatically? | **No.** Retries happen *inside* the extraction call (3 attempts, 5xx and 429 only). Once a run reaches `Exception`, an operator acts. A write failure may be a constraint violation, and re-running it produces the same violation while hiding the cause. `power-automate/error-handling.md` §4. |
+
+---
+
+## 7. Decisions made during implementation
+
+**D-008 — Adapters return failures rather than throwing.**
+Every extraction failure mode is returned as a typed `ExtractionFailure`. This
+keeps outcome classification in one place — the orchestrator — instead of
+splitting it between a return value and a catch block, and it makes the failure
+taxonomy part of the type system rather than a convention.
+
+**D-009 — State transitions declared as data and enforced.**
+Without an explicit table, a bug in a review handler could move an `Exception`
+straight to `Closed` and the audit trail would show a transition the design
+never intended. Declaring them makes an invalid move an error where it is
+attempted. Reversed nothing; added a guard that did not previously exist.
+
+**D-010 — Business guards are separate from the transition table.**
+Discovered by running the app: "confirm duplicate" succeeded on a submission
+never flagged as one, because `Routed → Closed` is a legal transition. The
+state machine governs *where* a record may go; it cannot know whether the
+stated reason is true. Those are different questions and need different checks.
+
+**D-011 — Id counters on `globalThis`.**
+Also discovered by running the app. Next.js can instantiate the same module
+across separate bundles, so a module-level counter produced ids that collided
+with seeded records. In Dataverse this problem does not exist — Autonumber is
+allocated by the platform — and the global is the equivalent guarantee for the
+demo store.
 
 ---
 
@@ -181,4 +210,5 @@ without running the app.
 
 | Version | Phase | Change |
 |---|---|---|
-| v0 | Phase 0 | Initial note. Structure, boundaries, and six scaffold decisions recorded. |
+| v0 | Phase 0 | Initial note. Structure, boundaries, and seven scaffold decisions recorded. |
+| v1 | Phase 8 | All four open questions resolved with reasoning. Added D-008 through D-011 covering decisions taken during implementation. |
