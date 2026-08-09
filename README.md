@@ -16,7 +16,7 @@ documents into structured, validated, routed records.
 | Phase | Deliverable | State |
 |---|---|---|
 | 0 | Repository + project scaffold | ✅ Complete |
-| 1 | Business analysis documentation | ⬜ Not started |
+| 1 | Business analysis documentation | ✅ Complete |
 | 2 | Data model | ⬜ Not started |
 | 3 | Digital intake | ⬜ Not started |
 | 4 | Azure AI Document Intelligence | ⬜ Not started |
