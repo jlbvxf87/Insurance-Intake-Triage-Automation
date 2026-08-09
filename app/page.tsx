@@ -1,39 +1,67 @@
+import type { Metadata } from 'next'
+import { SiteHeader } from '@/components/case-study/site-header'
+import { Hero } from '@/components/case-study/hero'
+import { Vsl } from '@/components/case-study/vsl'
+import { Pillars } from '@/components/case-study/pillars'
+import { InteractiveWorkflow } from '@/components/case-study/interactive-workflow'
+import { HowItWorks } from '@/components/case-study/how-it-works'
+import { StateComparison } from '@/components/case-study/state-comparison'
+import { Architecture } from '@/components/case-study/architecture'
+import { DataModel } from '@/components/case-study/data-model'
+import { Extraction } from '@/components/case-study/extraction'
+import { Rules } from '@/components/case-study/rules'
+import { PowerAutomate } from '@/components/case-study/power-automate'
+import { ErrorHandling } from '@/components/case-study/error-handling'
+import { OpsShowcase } from '@/components/case-study/ops-showcase'
+import { Requirements } from '@/components/case-study/requirements'
+import { Testing } from '@/components/case-study/testing'
+import { WhatIBuilt } from '@/components/case-study/what-i-built'
+import { Closing, SiteFooter } from '@/components/case-study/closing'
+import { SITE } from '@/lib/case-study/content'
+
+export const metadata: Metadata = {
+  title: `${SITE.title} · ${SITE.author}`,
+  description: SITE.tagline,
+  openGraph: {
+    title: SITE.title,
+    description: SITE.tagline,
+    type: 'website',
+  },
+}
+
 /**
- * Phase 0 placeholder.
+ * Case-study landing page (Phases 9, 9A, 10).
  *
- * The case-study landing page is built in Phase 9. Until then this route
- * states what exists and what does not, so the running app never implies
- * capability it has not yet been given.
+ * Section order follows the brief. The sequencing has a logic worth stating:
+ * the problem and the live workflow come before any architecture, because a
+ * reader who has not understood what the system does will not care how it is
+ * built. The dark sections are the technical ones — workflow, Power Automate,
+ * testing — so the page has a rhythm rather than eighteen identical panels.
  */
-export default function Home() {
+export default function CaseStudyPage() {
   return (
-    <main className="mx-auto flex min-h-screen max-w-2xl flex-col justify-center px-6 py-24">
-      <p className="font-mono text-xs tracking-widest text-[var(--subtle)] uppercase">
-        Phase 0 · Scaffold
-      </p>
-
-      <h1 className="mt-6 text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
-        Insurance Intake &amp; Triage Automation
-      </h1>
-
-      <p className="mt-5 text-lg leading-relaxed text-[var(--muted)] text-pretty">
-        An AI-enabled insurance workflow that turns incoming submissions and
-        policy documents into structured, validated, routed records.
-      </p>
-
-      <p className="mt-6 font-mono text-sm text-[var(--subtle)]">
-        Azure AI · Dataverse · Power Automate · REST APIs
-      </p>
-
-      <div className="mt-10 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
-        <h2 className="text-sm font-semibold">Build status</h2>
-        <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">
-          The repository scaffold is in place. The intake experience,
-          extraction layer, workflow engine, operations dashboard, and
-          case-study page are delivered in later phases. Nothing on this page
-          is a live system yet.
-        </p>
-      </div>
-    </main>
+    <>
+      <SiteHeader />
+      <main>
+        <Hero />
+        <Pillars />
+        <Vsl />
+        <InteractiveWorkflow />
+        <HowItWorks />
+        <StateComparison />
+        <Architecture />
+        <DataModel />
+        <Extraction />
+        <Rules />
+        <PowerAutomate />
+        <ErrorHandling />
+        <OpsShowcase />
+        <Requirements />
+        <Testing />
+        <WhatIBuilt />
+        <Closing />
+      </main>
+      <SiteFooter />
+    </>
   )
 }

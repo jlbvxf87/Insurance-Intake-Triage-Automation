@@ -87,7 +87,7 @@ export default async function OpsDashboard({
       )}
 
       {/* KPIs (FR-036) */}
-      <section aria-label="Key figures" className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <section aria-label="Key figures" className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard
           label="Submissions today"
           value={kpis.submissionsToday}
@@ -140,7 +140,7 @@ export default async function OpsDashboard({
         <ViewTabs views={QUEUE_VIEWS} activeId={view.id} counts={counts} />
       </div>
 
-      <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_320px]">
+      <div className="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-[1fr_320px]">
         {/* Queue (FR-035) */}
         <div className="min-w-0">
           <p className="max-w-2xl text-[13px] leading-relaxed text-[var(--muted)]">

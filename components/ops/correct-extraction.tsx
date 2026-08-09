@@ -122,7 +122,7 @@ export function CorrectExtraction({
         </div>
       )}
 
-      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+      <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
         {FIELDS.map((field) => (
           <div key={field.key} className="flex flex-col gap-1">
             <label

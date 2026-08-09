@@ -144,7 +144,7 @@ export function IntakeForm({ config }: { config: PublicConfig }) {
           Contact
         </legend>
 
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <Field id="field-clientName" label="Full name" error={errors.clientName} required>
             {({ id, describedBy, invalid }) => (
               <TextInput
@@ -223,7 +223,7 @@ export function IntakeForm({ config }: { config: PublicConfig }) {
           Request
         </legend>
 
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <Field
             id="field-submissionType"
             label="Request type"

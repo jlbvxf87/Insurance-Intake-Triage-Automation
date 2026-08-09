@@ -71,7 +71,7 @@ export default async function SubmissionDetailPage({
         </div>
       )}
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_300px]">
+      <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[1fr_300px]">
         <div className="flex min-w-0 flex-col gap-6">
           {/* Submission ------------------------------------------------ */}
           <section
@@ -218,7 +218,7 @@ export default async function SubmissionDetailPage({
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="grid gap-1 px-5 py-3 sm:grid-cols-[160px_1fr] sm:gap-4">
+    <div className="grid grid-cols-1 gap-1 px-5 py-3 sm:grid-cols-[160px_1fr] sm:gap-4">
       <dt className="text-[13px] text-[var(--subtle)]">{label}</dt>
       <dd className="text-[13px]">{children}</dd>
     </div>

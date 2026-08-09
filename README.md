@@ -26,8 +26,8 @@ documents into structured, validated, routed records.
 | 6 | Error handling + human review | ✅ Complete |
 | 7 | Operations dashboard | ✅ Complete |
 | 8 | Testing + documentation | ✅ Complete |
-| 9 | Portfolio case-study page | ⬜ Not started |
-| 10 | Walkthrough video | ⬜ Not started |
+| 9 | Portfolio case-study page | ✅ Complete |
+| 10 | Walkthrough video | 🟡 Section built, recording pending |
 
 **188 automated tests passing.** Type-check, lint, and production build clean.
 See [`docs/test-plan.md`](docs/test-plan.md) for recorded results, the five

@@ -135,7 +135,7 @@ export function SubmissionReceipt({
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="grid gap-1 px-4 py-3 sm:grid-cols-[200px_1fr] sm:items-center sm:gap-4">
+    <div className="grid grid-cols-1 gap-1 px-4 py-3 sm:grid-cols-[200px_1fr] sm:items-center sm:gap-4">
       <dt className="text-[13px] font-medium text-[var(--subtle)]">{label}</dt>
       <dd className="text-[var(--foreground)]">{children}</dd>
     </div>
