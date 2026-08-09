@@ -17,7 +17,7 @@ documents into structured, validated, routed records.
 |---|---|---|
 | 0 | Repository + project scaffold | ✅ Complete |
 | 1 | Business analysis documentation | ✅ Complete |
-| 2 | Data model | ⬜ Not started |
+| 2 | Data model | ✅ Complete |
 | 3 | Digital intake | ⬜ Not started |
 | 4 | Azure AI Document Intelligence | ⬜ Not started |
 | 5 | Workflow / automation logic | ⬜ Not started |

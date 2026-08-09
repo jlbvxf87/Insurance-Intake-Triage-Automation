@@ -1,0 +1,9 @@
+clientId,clientName,companyName,email,phone,clientType,createdDate,active
+CLI-1001,Dana Whitfield,ACME Trucking LLC,dispatch@acmetrucking.example,(816) 555-0142,Commercial,2025-06-23T15:00:00.000Z,true
+CLI-1002,Marcus Reyes,Northside Property Group,mreyes@northsideproperty.example,(913) 555-0178,Commercial,2025-10-25T15:00:00.000Z,true
+CLI-1003,Priya Raman,Belmont Fabrication Co,p.raman@belmontfab.example,(816) 555-0119,Commercial,2026-01-24T15:00:00.000Z,true
+CLI-1004,Alan Novak,Riverbend Logistics,anovak@riverbendlogistics.example,(573) 555-0163,Commercial,2026-03-08T15:00:00.000Z,true
+CLI-1005,Teresa Iglesias,Cedar Hollow Restaurants,tiglesias@cedarhollow.example,(816) 555-0134,Commercial,2026-05-05T15:00:00.000Z,true
+CLI-1006,Gregory Osei,Kestrel Benefit Partners,gosei@kestrelbenefit.example,(913) 555-0107,Broker,2026-06-09T15:00:00.000Z,true
+CLI-1007,Hollis Vance,Vance Machine Works,hollis@vancemachine.example,(660) 555-0186,Commercial,2026-07-07T15:00:00.000Z,true
+CLI-1008,Sofia Barrantes,Lakeline Storage Partners,sbarrantes@lakelinestorage.example,(816) 555-0195,Commercial,2026-07-28T15:00:00.000Z,true

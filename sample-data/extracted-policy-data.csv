@@ -1,0 +1,9 @@
+extractionId,submissionId,carrier,policyNumber,namedInsured,policyType,effectiveDate,expirationDate,coverageAmount,extractionConfidence,validationStatus,missingFields,provider
+EXT-20001,SUB-10024,Meridian Mutual,PR-4471902,Lakeline Storage Partners,Commercial Property,2026-03-01,2027-03-01,2500000,0.930,Validated,,fixture
+EXT-20002,SUB-10023,Example Insurance,CA-829103,ACME Trucking LLC,Commercial Auto,2026-01-01,2027-01-01,1000000,0.940,Validated,,fixture
+EXT-20003,SUB-10022,Granite State Casualty,WC-55120-B,Belmont Fabrication Co,Workers Compensation,2026-02-15,2027-02-15,1000000,0.620,Unverified,,fixture
+EXT-20004,SUB-10019,Example Insurance,CA-829103,ACME Trucking LLC,Commercial Auto,2026-01-01,2027-01-01,1000000,0.950,Validated,,fixture
+EXT-20005,SUB-10017,Meridian Mutual,PR-3390188,Northside Property Group,Commercial Property,2025-11-01,2026-11-01,4000000,0.880,Validated,,fixture
+EXT-20006,SUB-10016,Ridgeline Indemnity,,Riverbend Logistics,Commercial Auto,2026-05-01,2027-05-01,750000,0.840,Failed,policyNumber,fixture
+EXT-20007,SUB-10015,Granite State Casualty,GL-77401,Belmont Fabrication Co,General Liability,2026-02-15,2027-02-15,2000000,0.910,Validated,,fixture
+EXT-20008,SUB-10013,Ridgeline Indemnity,WC-61228,Vance Machine Works,Workers Compensation,2026-04-01,2027-04-01,1000000,0.870,Validated,,fixture
