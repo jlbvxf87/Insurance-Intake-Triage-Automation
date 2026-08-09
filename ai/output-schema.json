@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jlbvxf87/Insurance-Intake-Triage-Automation/ai/output-schema.json",
+  "title": "NormalizedExtraction",
+  "description": "The shape every extraction adapter must return, whatever the upstream service actually sent. Enforced at runtime by lib/domain/schemas.ts (normalizedExtractionSchema). A response that cannot be reduced to this shape is an extraction failure, never partial data passed downstream as if it were trustworthy.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "carrier",
+    "policyNumber",
+    "effectiveDate",
+    "expirationDate",
+    "namedInsured",
+    "policyType",
+    "coverageAmount",
+    "fieldConfidence",
+    "extractionConfidence"
+  ],
+  "properties": {
+    "namedInsured": {
+      "type": ["string", "null"],
+      "minLength": 1,
+      "description": "Named insured as printed on the document. Required for a Validated result.",
+      "examples": ["ACME Trucking LLC"]
+    },
+    "policyNumber": {
+      "type": ["string", "null"],
+      "minLength": 1,
+      "description": "Carrier policy number, as printed. Not normalized — formats are carrier-specific and reformatting would destroy information. Required for a Validated result.",
+      "examples": ["CA-829103"]
+    },
+    "carrier": {
+      "type": ["string", "null"],
+      "minLength": 1,
+      "description": "Issuing carrier. Required for a Validated result.",
+      "examples": ["Example Insurance"]
+    },
+    "effectiveDate": {
+      "type": ["string", "null"],
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+      "description": "Policy inception, normalized to ISO 8601 calendar date.",
+      "examples": ["2026-01-01"]
+    },
+    "expirationDate": {
+      "type": ["string", "null"],
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+      "description": "Policy expiration, normalized to ISO 8601 calendar date.",
+      "examples": ["2027-01-01"]
+    },
+    "policyType": {
+      "type": "string",
+      "enum": [
+        "Commercial Auto",
+        "Commercial Property",
+        "General Liability",
+        "Workers Compensation",
+        "Umbrella",
+        "Unknown"
+      ],
+      "description": "Policy type read from the document. Constrained to the option set. Never used to route — a value contradicting the submitted line of business is recorded as a review reason (FR-030). 'Unknown' when nothing recognizable was found."
+    },
+    "coverageAmount": {
+      "type": ["number", "null"],
+      "minimum": 0,
+      "description": "Principal limit, in the document's currency, as a plain number. Currency symbols and thousands separators are stripped during normalization.",
+      "examples": [1000000]
+    },
+    "fieldConfidence": {
+      "type": "object",
+      "description": "Per-field confidence, keyed by the field names above. Retained so a reviewer can see which specific field was weak rather than only that the aggregate was low (BR-018). Fields the service returned without a confidence are omitted.",
+      "additionalProperties": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "examples": [
+        {
+          "namedInsured": 0.98,
+          "policyNumber": 0.96,
+          "carrier": 0.93
+        }
+      ]
+    },
+    "extractionConfidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Aggregate confidence: the arithmetic mean of the per-field confidences. Compared against EXTRACTION_CONFIDENCE_THRESHOLD (default 0.80, inclusive) to decide whether the result is Validated or Unverified (BR-007, BR-019).",
+      "examples": [0.94]
+    }
+  },
+  "examples": [
+    {
+      "namedInsured": "ACME Trucking LLC",
+      "policyNumber": "CA-829103",
+      "carrier": "Example Insurance",
+      "effectiveDate": "2026-01-01",
+      "expirationDate": "2027-01-01",
+      "policyType": "Commercial Auto",
+      "coverageAmount": 1000000,
+      "fieldConfidence": {
+        "namedInsured": 0.98,
+        "policyNumber": 0.96,
+        "carrier": 0.93,
+        "effectiveDate": 0.92,
+        "expirationDate": 0.91,
+        "coverageAmount": 0.94
+      },
+      "extractionConfidence": 0.94
+    }
+  ]
+}
