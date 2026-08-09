@@ -367,13 +367,46 @@ it is not usable.
 
 `.env` and `.env.local` are gitignored.
 
-## 13. Screenshots
+## 13. Deployment
+
+The app is a standard Next.js project and deploys to Vercel with no
+configuration beyond [`vercel.json`](vercel.json), which is committed.
+
+**From this directory:**
+
+```bash
+npx vercel --prod
+```
+
+**Or connect the repository:** import it at
+[vercel.com/new](https://vercel.com/new), pick this repo, and accept the
+detected settings. Every push to `main` then deploys automatically, and every
+pull request gets a preview URL.
+
+No environment variables are required. With none set, `EXTRACTION_PROVIDER`
+resolves to `fixture` and the app runs in demo mode. To point the hosted demo
+at a real Azure resource, set `AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT` and
+`AZURE_DOCUMENT_INTELLIGENCE_KEY` in the Vercel project settings — nothing else
+changes.
+
+### One caveat worth stating
+
+The demo store is in memory and **per instance**. Running locally there is one
+process, so a submission made at `/intake` appears at `/ops` immediately. On
+Vercel there are many serverless instances, so a submission may be handled by a
+different instance than the one rendering the dashboard, and may not appear
+there. This is a property of the demo store, not of the workflow — the
+`Repository` interface exists precisely so a Dataverse or Postgres
+implementation can replace it without the orchestrator changing. The UI says
+this on both surfaces rather than leaving a reader to discover it.
+
+## 14. Screenshots
 
 Ten screenshots captured from the running application at 1440 px and 390 px:
 [`demo/screenshots/`](demo/screenshots). Regenerate with
 `node scripts/capture-screenshots.mjs` against a running server.
 
-## 14. Repository layout
+## 15. Repository layout
 
 ```text
 app/                Next.js routes — intake, ops dashboard, API
@@ -395,7 +428,7 @@ scripts/            Sample-data and screenshot generation
 demo/screenshots/   Captured UI
 ```
 
-## 15. Data handling
+## 16. Data handling
 
 - All data is synthetic. Company addresses use the reserved `.example` domain,
   so nothing in this repository can resolve to a real mailbox.
@@ -406,7 +439,7 @@ demo/screenshots/   Captured UI
 - The demo writes to an in-memory store that resets when the server restarts.
   It does not connect to a live CRM.
 
-## 16. Where to start reading
+## 17. Where to start reading
 
 | If you want to see… | Read |
 |---|---|

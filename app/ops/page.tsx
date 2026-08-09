@@ -79,9 +79,12 @@ export default async function OpsDashboard({
         <div className="mt-6">
           <Callout tone="info" title="Demo mode">
             Synthetic records, seeded on server start. Document extraction uses
-            local fixtures rather than Azure AI Document Intelligence.
-            Submissions made through the intake form appear here immediately and
-            reset when the server restarts.
+            local fixtures rather than Azure AI Document Intelligence. Running
+            locally, submissions made through the intake form appear here
+            immediately. On the hosted demo the store is per serverless
+            instance, so a submission may land on an instance other than the one
+            serving this page — a property of the in-memory store, not of the
+            workflow.
           </Callout>
         </div>
       )}
