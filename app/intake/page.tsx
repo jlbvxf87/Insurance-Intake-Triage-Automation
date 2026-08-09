@@ -49,9 +49,10 @@ export default function IntakePage() {
             deterministic local fixtures rather than calling Azure AI Document
             Intelligence. Everything else — validation, client matching,
             duplicate detection, routing, and logging — runs exactly as it does
-            in production. Records live in memory and reset when the server
-            restarts; on the hosted demo each serverless instance keeps its own
-            copy, so a submission may not appear in the dashboard.
+            in production.{' '}
+            {config.isSharedStore
+              ? 'Records are written to a shared Postgres database, so anything you submit appears in the operations dashboard immediately. The demo resets to its seeded state once a day.'
+              : 'Records live in memory and reset when the server restarts.'}
           </Callout>
         ) : (
           <Callout tone="info" title="Live extraction">

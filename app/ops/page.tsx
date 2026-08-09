@@ -6,7 +6,7 @@ import { ViewTabs } from '@/components/ops/view-tabs'
 import { SubmissionQueue } from '@/components/ops/submission-queue'
 import { AutomationHealthPanel } from '@/components/ops/automation-health'
 import { Callout } from '@/components/ui/callout'
-import { getRepository } from '@/lib/data/store'
+import { ensureSeeded, getRepository } from '@/lib/data/store'
 import {
   QUEUE_VIEWS,
   computeAutomationHealth,
@@ -34,6 +34,7 @@ export default async function OpsDashboard({
   searchParams: Promise<{ view?: string }>
 }) {
   const { view: viewParam } = await searchParams
+  await ensureSeeded()
   const repository = getRepository()
   const config = toPublicConfig(getConfig())
 
@@ -78,13 +79,11 @@ export default async function OpsDashboard({
       {config.isDemoMode && (
         <div className="mt-6">
           <Callout tone="info" title="Demo mode">
-            Synthetic records, seeded on server start. Document extraction uses
-            local fixtures rather than Azure AI Document Intelligence. Running
-            locally, submissions made through the intake form appear here
-            immediately. On the hosted demo the store is per serverless
-            instance, so a submission may land on an instance other than the one
-            serving this page — a property of the in-memory store, not of the
-            workflow.
+            Synthetic records. Document extraction uses local fixtures rather
+            than Azure AI Document Intelligence.{' '}
+            {config.isSharedStore
+              ? 'Records are held in a shared Postgres database behind the same Repository interface the in-memory store implements, so submissions appear here immediately. The dataset resets to its seeded state once a day.'
+              : 'Records are held in memory and seeded on server start; they reset when the server restarts.'}
           </Callout>
         </div>
       )}

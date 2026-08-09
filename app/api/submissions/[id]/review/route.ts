@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getConfig } from '@/lib/config'
-import { getRepository } from '@/lib/data/store'
+import { ensureStoreReady, getRepository } from '@/lib/data/store'
 import {
   applyReviewAction,
   ReviewActionError,
@@ -69,6 +69,8 @@ export async function POST(
   }
 
   try {
+    await ensureStoreReady()
+
     const result = await applyReviewAction({
       submissionId: id,
       action: parsed.data.action as ReviewAction,

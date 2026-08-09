@@ -60,6 +60,20 @@ export class InMemoryRepository implements Repository {
         'createClient',
       )
     }
+
+    // Mirrors the alternate key on `normalized_email` (FR-017, FR-019).
+    // Without this the in-memory store would accept a duplicate that Postgres
+    // rejects — and the repository contract test caught exactly that. A stand-in
+    // that enforces less than the real thing hides bugs until production.
+    for (const existing of this.clients.values()) {
+      if (existing.normalizedEmail === client.normalizedEmail) {
+        throw new RepositoryError(
+          `A client already exists for ${client.normalizedEmail} (${existing.clientId}).`,
+          'createClient',
+        )
+      }
+    }
+
     this.clients.set(client.clientId, clone(client))
     return clone(client)
   }
@@ -117,6 +131,23 @@ export class InMemoryRepository implements Repository {
   // Extraction -------------------------------------------------------------
 
   async createExtraction(extraction: ExtractedPolicyData): Promise<ExtractedPolicyData> {
+    if (this.extractions.has(extraction.extractionId)) {
+      throw new RepositoryError(
+        `Extraction ${extraction.extractionId} already exists.`,
+        'createExtraction',
+      )
+    }
+
+    // Mirrors the alternate key enforcing 1:1 with Submission (DR-003).
+    for (const existing of this.extractions.values()) {
+      if (existing.submissionId === extraction.submissionId) {
+        throw new RepositoryError(
+          `Submission ${extraction.submissionId} already has extraction ${existing.extractionId}.`,
+          'createExtraction',
+        )
+      }
+    }
+
     this.extractions.set(extraction.extractionId, clone(extraction))
     return clone(extraction)
   }

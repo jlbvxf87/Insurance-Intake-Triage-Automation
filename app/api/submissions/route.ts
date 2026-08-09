@@ -6,7 +6,7 @@ import {
   toFieldErrors,
   validateUpload,
 } from '@/lib/domain/schemas'
-import { getRepository } from '@/lib/data/store'
+import { ensureStoreReady, getRepository } from '@/lib/data/store'
 import { runIntakeWorkflow } from '@/lib/workflow/orchestrator'
 
 /**
@@ -84,6 +84,10 @@ export async function POST(request: Request) {
   }
 
   // 4 — Hand off to the workflow ------------------------------------------
+  // With a shared store, make sure this instance's id counters are past
+  // whatever is already persisted before any record is created.
+  await ensureStoreReady()
+
   const result = await runIntakeWorkflow({
     input: parsed.data,
     document: document

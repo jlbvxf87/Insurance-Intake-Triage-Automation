@@ -14,6 +14,9 @@
 
 import type { ExtractionProvider } from './domain/enums'
 
+/** Where records are persisted. */
+export type DataProvider = 'memory' | 'postgres'
+
 /**
  * Minimal read-only view of the environment. Narrower than `NodeJS.ProcessEnv`
  * on purpose: a test supplies exactly the variables under test without having
@@ -24,6 +27,16 @@ export type EnvSource = Record<string, string | undefined>
 export interface AppConfig {
   /** Resolved extraction provider. `auto` is resolved here, not downstream. */
   extractionProvider: ExtractionProvider
+  /**
+   * Resolved persistence provider. Same `auto` pattern as extraction: a
+   * connection string present means use it, absent means the in-memory demo
+   * store. Local development and the test suite stay zero-config.
+   */
+  dataProvider: DataProvider
+  /** Server-only. Never sent to the client, never logged. */
+  databaseUrl: string
+  /** Shared secret Vercel Cron presents when calling the reset endpoint. */
+  cronSecret: string
   /** What `EXTRACTION_PROVIDER` was set to, for diagnostics. */
   configuredProvider: string
   azure: {
@@ -75,9 +88,27 @@ export function getConfig(env: EnvSource = process.env): AppConfig {
     provider = azureConfigured ? 'azure' : 'fixture'
   }
 
+  const databaseUrl = str(env.DATABASE_URL)
+  const configuredData = str(env.DATA_PROVIDER, 'auto').toLowerCase()
+
+  let dataProvider: DataProvider
+  if (configuredData === 'postgres') {
+    // Explicit request. If the URL is missing the store fails loudly at
+    // startup rather than silently serving an empty in-memory dataset that
+    // looks like a working demo.
+    dataProvider = 'postgres'
+  } else if (configuredData === 'memory') {
+    dataProvider = 'memory'
+  } else {
+    dataProvider = databaseUrl !== '' ? 'postgres' : 'memory'
+  }
+
   return {
     extractionProvider: provider,
     configuredProvider: configured,
+    dataProvider,
+    databaseUrl,
+    cronSecret: str(env.CRON_SECRET),
     azure: {
       endpoint,
       key,
@@ -105,6 +136,10 @@ function clamp01(value: number): number {
 export interface PublicConfig {
   extractionProvider: ExtractionProvider
   isDemoMode: boolean
+  /** `memory` or `postgres`. The connection string is never included. */
+  dataProvider: DataProvider
+  /** True when records are shared across instances. */
+  isSharedStore: boolean
   confidenceThreshold: number
   duplicateWindowDays: number
   maxUploadMb: number
@@ -114,6 +149,8 @@ export function toPublicConfig(config: AppConfig): PublicConfig {
   return {
     extractionProvider: config.extractionProvider,
     isDemoMode: config.extractionProvider === 'fixture',
+    dataProvider: config.dataProvider,
+    isSharedStore: config.dataProvider === 'postgres',
     confidenceThreshold: config.confidenceThreshold,
     duplicateWindowDays: config.duplicateWindowDays,
     maxUploadMb: Math.round(config.maxUploadBytes / (1024 * 1024)),

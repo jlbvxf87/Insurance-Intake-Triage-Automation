@@ -389,16 +389,52 @@ at a real Azure resource, set `AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT` and
 `AZURE_DOCUMENT_INTELLIGENCE_KEY` in the Vercel project settings — nothing else
 changes.
 
-### One caveat worth stating
+### Persistence
 
-The demo store is in memory and **per instance**. Running locally there is one
-process, so a submission made at `/intake` appears at `/ops` immediately. On
-Vercel there are many serverless instances, so a submission may be handled by a
-different instance than the one rendering the dashboard, and may not appear
-there. This is a property of the demo store, not of the workflow — the
-`Repository` interface exists precisely so a Dataverse or Postgres
-implementation can replace it without the orchestrator changing. The UI says
-this on both surfaces rather than leaving a reader to discover it.
+Two implementations sit behind the `Repository` interface, and which one runs
+is configuration:
+
+| `DATA_PROVIDER` | Store | Use |
+|---|---|---|
+| `memory` | In-process, seeded on start | Local development and the test suite. Zero setup |
+| `postgres` | Shared Postgres | The hosted demo. Every instance sees the same records |
+| `auto` *(default)* | `postgres` when `DATABASE_URL` is set, else `memory` | — |
+
+**Why it matters on Vercel.** Serverless functions scale to many instances. With
+the in-memory store, a submission made at `/intake` may be handled by a
+different instance than the one rendering `/ops`, so it would not appear there.
+With Postgres it always does.
+
+This was the point of the interface, and swapping it cost nothing above the
+data layer: the orchestrator, the business rules, and every workflow test are
+untouched. What did change is that the two implementations are now held to a
+[shared contract test](tests/repository-contract.test.ts) — which immediately
+found two places where the in-memory store enforced *less* than the database
+(see §10).
+
+**Setting it up:**
+
+1. Apply [`supabase/migrations/0001_create_iit_schema.sql`](supabase/migrations/0001_create_iit_schema.sql).
+   It creates an isolated `iit` schema — four tables mirroring the Dataverse
+   model, with the same option sets, alternate keys, and delete behaviour.
+2. Set `DATABASE_URL` in the Vercel project to the **transaction pooler**
+   connection string (port 6543, not the direct connection — serverless opens
+   many short-lived connections).
+3. Set `CRON_SECRET` to any random string.
+
+There is no seed step. The first request to an empty database seeds it, guarded
+by a Postgres advisory lock so concurrent cold starts cannot double-seed.
+
+### Keeping the demo clean
+
+The hosted demo is publicly writable, so `vercel.json` schedules
+`/api/admin/reset` daily at 07:00 UTC. It truncates and re-seeds, which bounds
+how long anything a visitor submits persists and keeps the queue reading as a
+realistic operations board.
+
+The endpoint requires `Authorization: Bearer $CRON_SECRET` — the header Vercel
+Cron sends automatically. With `CRON_SECRET` unset the endpoint is **disabled**
+rather than open.
 
 ## 14. Screenshots
 

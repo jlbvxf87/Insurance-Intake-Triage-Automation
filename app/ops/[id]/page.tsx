@@ -7,7 +7,7 @@ import { Callout } from '@/components/ui/callout'
 import { ExtractionPanel } from '@/components/ops/extraction-panel'
 import { RunTrace } from '@/components/ops/run-trace'
 import { ReviewActions } from '@/components/ops/review-actions'
-import { getRepository } from '@/lib/data/store'
+import { ensureSeeded, getRepository } from '@/lib/data/store'
 import { getConfig } from '@/lib/config'
 import { formatDateTime } from '@/lib/utils/dates'
 
@@ -28,6 +28,7 @@ export default async function SubmissionDetailPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
+  await ensureSeeded()
   const detail = await getRepository().getSubmissionDetail(id)
   if (!detail) notFound()
 
