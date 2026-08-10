@@ -417,9 +417,15 @@ found two places where the in-memory store enforced *less* than the database
 1. Apply [`supabase/migrations/0001_create_iit_schema.sql`](supabase/migrations/0001_create_iit_schema.sql).
    It creates an isolated `iit` schema — four tables mirroring the Dataverse
    model, with the same option sets, alternate keys, and delete behaviour.
-2. Set `DATABASE_URL` in the Vercel project to the **transaction pooler**
-   connection string (port 6543, not the direct connection — serverless opens
-   many short-lived connections).
+2. Point the app at it, either way round:
+   - **Vercel Supabase integration** (no password handling): Vercel project →
+     Storage → Supabase → connect. It injects `POSTGRES_URL`, which the app
+     accepts directly.
+   - **By hand:** set `DATABASE_URL` to the **shared transaction pooler**
+     string — host ends `.pooler.supabase.com`, user is
+     `postgres.<project-ref>`, port 6543. Not `db.<ref>.supabase.co`: that host
+     is IPv6-only without the IPv4 add-on, and Vercel functions have no IPv6
+     egress, so it times out rather than failing cleanly.
 3. Set `CRON_SECRET` to any random string.
 
 There is no seed step. The first request to an empty database seeds it, guarded

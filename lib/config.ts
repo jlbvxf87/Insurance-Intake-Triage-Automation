@@ -88,7 +88,18 @@ export function getConfig(env: EnvSource = process.env): AppConfig {
     provider = azureConfigured ? 'azure' : 'fixture'
   }
 
-  const databaseUrl = str(env.DATABASE_URL)
+  // Accept the names Vercel's Supabase integration injects, not just our own.
+  // Connecting the integration in the Vercel dashboard sets POSTGRES_URL
+  // automatically — which means the deployment needs no hand-copied
+  // connection string and no password ever passes through a clipboard.
+  // Order is deliberate: an explicit DATABASE_URL wins, then the pooled
+  // integration variable, and the non-pooling one is a last resort because a
+  // direct connection per serverless instance exhausts the server's limit.
+  const databaseUrl =
+    str(env.DATABASE_URL) ||
+    str(env.POSTGRES_URL) ||
+    str(env.POSTGRES_PRISMA_URL) ||
+    str(env.POSTGRES_URL_NON_POOLING)
   const configuredData = str(env.DATA_PROVIDER, 'auto').toLowerCase()
 
   let dataProvider: DataProvider

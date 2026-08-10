@@ -398,3 +398,46 @@ describe('seed data and repository (DR-001 – DR-004, DR-007)', () => {
     }
   })
 })
+
+describe('database connection resolution', () => {
+  it('prefers an explicit DATABASE_URL', () => {
+    const config = getConfig({
+      DATABASE_URL: 'postgresql://explicit',
+      POSTGRES_URL: 'postgresql://integration',
+    })
+    expect(config.databaseUrl).toBe('postgresql://explicit')
+    expect(config.dataProvider).toBe('postgres')
+  })
+
+  it("accepts the variable Vercel's Supabase integration injects", () => {
+    // POSTGRES_URL is set automatically when the integration is connected, so
+    // the deployment needs no hand-copied connection string.
+    const config = getConfig({ POSTGRES_URL: 'postgresql://integration' })
+    expect(config.databaseUrl).toBe('postgresql://integration')
+    expect(config.dataProvider).toBe('postgres')
+  })
+
+  it('falls back through the pooled variants before the non-pooling one', () => {
+    expect(getConfig({ POSTGRES_PRISMA_URL: 'postgresql://prisma' }).databaseUrl).toBe(
+      'postgresql://prisma',
+    )
+    expect(
+      getConfig({ POSTGRES_URL_NON_POOLING: 'postgresql://direct' }).databaseUrl,
+    ).toBe('postgresql://direct')
+  })
+
+  it('stays in memory mode when no connection string is present', () => {
+    const config = getConfig({})
+    expect(config.dataProvider).toBe('memory')
+    expect(config.databaseUrl).toBe('')
+  })
+
+  it('never exposes the connection string to the client', () => {
+    const publicConfig = toPublicConfig(
+      getConfig({ DATABASE_URL: 'postgresql://user:hunter2@host:6543/postgres' }),
+    )
+    expect(JSON.stringify(publicConfig)).not.toContain('hunter2')
+    expect(JSON.stringify(publicConfig)).not.toContain('postgresql://')
+    expect(publicConfig.dataProvider).toBe('postgres')
+  })
+})
