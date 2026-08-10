@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Check, ChevronRight, Play, RotateCcw, TriangleAlert } from 'lucide-react'
 import { Container, Eyebrow } from './primitives'
@@ -350,9 +351,24 @@ export function InteractiveWorkflow() {
         <p className="mt-4 text-[13px] leading-relaxed text-[var(--ink-muted)]">
           {scenario === 'routed' ? (
             <>
-              Every value above comes from the fixture adapter and the same
-              business rules the test suite asserts against. Run it yourself at{' '}
-              <code className="font-mono text-[#9aa2ff]">/intake</code>.
+              This is a scripted replay, not a live run — the values come from
+              the fixture adapter and the same business rules the test suite
+              asserts against. To put a real document through the running
+              system, use{' '}
+              <Link
+                href="/intake"
+                className="font-medium text-[#9aa2ff] underline underline-offset-2 hover:text-white"
+              >
+                the intake form
+              </Link>
+              , then watch it land in{' '}
+              <Link
+                href="/ops"
+                className="font-medium text-[#9aa2ff] underline underline-offset-2 hover:text-white"
+              >
+                the dashboard
+              </Link>
+              .
             </>
           ) : (
             <>

@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { ArrowRight, Play } from 'lucide-react'
 import { GithubIcon } from './brand-icons'
 import { Container } from './primitives'
@@ -34,19 +35,33 @@ export function Hero() {
             </p>
 
             <div className="mt-8 flex flex-wrap items-center gap-3">
-              <a
-                href="#workflow"
+              {/*
+                Points at the running application, not at the animation
+                further down the page. The previous label read "View live
+                workflow" while scrolling to a scripted replay — the word
+                "live" promised something the anchor could not deliver, and
+                readers reasonably expected a real run.
+              */}
+              <Link
+                href="/intake"
                 className="inline-flex h-11 items-center gap-2 rounded-lg bg-[var(--accent)] px-5 text-sm font-medium text-white transition-colors hover:bg-[#1a5fd0]"
               >
-                View live workflow
+                Run a live submission
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              </a>
+              </Link>
+
+              <Link
+                href="/ops"
+                className="inline-flex h-11 items-center gap-2 rounded-lg border border-[var(--border-strong)] bg-white px-5 text-sm font-medium transition-colors hover:bg-[var(--surface)]"
+              >
+                Open the dashboard
+              </Link>
 
               <a
                 href={SITE.github}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex h-11 items-center gap-2 rounded-lg border border-[var(--border-strong)] bg-white px-5 text-sm font-medium transition-colors hover:bg-[var(--surface)]"
+                className="inline-flex h-11 items-center gap-2 rounded-lg px-3 text-sm font-medium text-[var(--muted)] transition-colors hover:text-[var(--foreground)]"
               >
                 <GithubIcon className="h-4 w-4" />
                 Explore GitHub
