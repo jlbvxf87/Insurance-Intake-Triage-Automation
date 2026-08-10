@@ -77,11 +77,13 @@ export async function seedRepository(
  * startup is what keeps `SUB-10025` from being handed out twice.
  */
 export async function syncIdCountersFromStore(repository: Repository): Promise<void> {
-  const [clients, submissions, logs] = await Promise.all([
-    repository.listClients(),
-    repository.listSubmissions(),
-    repository.listLogs(),
-  ])
+  // Sequential rather than concurrent. Against Postgres this repository holds
+  // a single pooled connection under transaction pooling, where parallel
+  // queries stall rather than interleave. This runs once per instance during a
+  // cold start, so three round trips are not worth a deadlock.
+  const clients = await repository.listClients()
+  const submissions = await repository.listSubmissions()
+  const logs = await repository.listLogs()
 
   const highest = (ids: string[], prefix: string): number =>
     ids.reduce((max, id) => {

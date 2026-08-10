@@ -504,11 +504,11 @@ export class PostgresRepository implements Repository {
     const submission = await this.getSubmission(submissionId)
     if (!submission) return null
 
-    const [client, extraction, logs] = await Promise.all([
-      this.getClient(submission.clientId),
-      this.getExtractionBySubmission(submissionId),
-      this.listLogsBySubmission(submissionId),
-    ])
+    // Sequential for the same reason as `listSubmissionDetails`: one pooled
+    // connection cannot serve concurrent queries under transaction pooling.
+    const client = await this.getClient(submission.clientId)
+    const extraction = await this.getExtractionBySubmission(submissionId)
+    const logs = await this.listLogsBySubmission(submissionId)
 
     return client ? { submission, client, extraction, logs } : null
   }
@@ -518,12 +518,25 @@ export class PostgresRepository implements Repository {
       // Four queries and an in-memory join rather than a query per submission.
       // The dashboard renders every open submission, so an N+1 here would be
       // dozens of round trips on a cold serverless instance.
-      const [clients, submissions, extractions, logs] = await Promise.all([
-        this.sql<ClientRow[]>`select * from iit.clients`,
-        this.sql<SubmissionRow[]>`select * from iit.submissions order by date_received desc`,
-        this.sql<ExtractionRow[]>`select * from iit.extracted_policy_data`,
-        this.sql<LogRow[]>`select * from iit.automation_logs order by started desc`,
-      ])
+      //
+      // Awaited in sequence, NOT with `Promise.all`. The pool holds a single
+      // connection (`max: 1`) against a transaction-mode pooler, and issuing
+      // concurrent queries down one such connection stalls: the driver
+      // pipelines them while the pooler expects one transaction at a time.
+      // A single `select 1` succeeded while this method hung — which is
+      // precisely the shape that failure takes. Four sequential round trips
+      // over a handful of rows costs milliseconds; the deadlock cost the
+      // whole page.
+      const clients = await this.sql<ClientRow[]>`select * from iit.clients`
+      const submissions = await this.sql<SubmissionRow[]>`
+        select * from iit.submissions order by date_received desc
+      `
+      const extractions = await this.sql<ExtractionRow[]>`
+        select * from iit.extracted_policy_data
+      `
+      const logs = await this.sql<LogRow[]>`
+        select * from iit.automation_logs order by started desc
+      `
 
       const clientById = new Map(clients.map((row) => [row.client_id, toClient(row)]))
       const extractionBySubmission = new Map(

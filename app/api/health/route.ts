@@ -97,11 +97,12 @@ export async function GET() {
 
     if (reachable) {
       try {
-        const [clients, submissions, logs] = await Promise.all([
-          repository.listClients(),
-          repository.listSubmissions(),
-          repository.listLogs(),
-        ])
+        // Sequential, not concurrent: a single pooled connection under
+        // transaction pooling stalls on parallel queries. This endpoint hung
+        // on exactly that before the repository was fixed.
+        const clients = await repository.listClients()
+        const submissions = await repository.listSubmissions()
+        const logs = await repository.listLogs()
         body.database = {
           reachable: true,
           seeded: clients.length > 0,
