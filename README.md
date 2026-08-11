@@ -197,7 +197,7 @@ no exception escapes.
 
 ## 7. AI integration
 
-Azure AI Document Intelligence, `prebuilt-document` by default — no training
+Azure AI Document Intelligence, `prebuilt-layout` by default — no training
 corpus required, and the model id is configuration, so a custom-trained ACORD
 model is a config change rather than a rewrite. The normalization layer already
 reads both response shapes.
@@ -353,7 +353,7 @@ template.
 | `EXTRACTION_PROVIDER` | `auto` \| `azure` \| `fixture` | `auto` |
 | `AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT` | Azure resource endpoint | — |
 | `AZURE_DOCUMENT_INTELLIGENCE_KEY` | Azure resource key | — |
-| `AZURE_DOCUMENT_INTELLIGENCE_MODEL_ID` | Model used to analyze | `prebuilt-document` |
+| `AZURE_DOCUMENT_INTELLIGENCE_MODEL_ID` | Model used to analyze | `prebuilt-layout` |
 | `AZURE_DOCUMENT_INTELLIGENCE_API_VERSION` | REST API version | `2024-11-30` |
 | `AZURE_REQUEST_TIMEOUT_MS` | Whole-operation deadline | `30000` |
 | `EXTRACTION_CONFIDENCE_THRESHOLD` | Below this, human review | `0.80` |

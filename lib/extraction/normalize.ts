@@ -2,7 +2,7 @@
  * Azure response normalization (FR-022, IR-004).
  *
  * Document Intelligence returns loosely-shaped, model-dependent output:
- * `prebuilt-document` gives generic key/value pairs, a custom-trained model
+ * `prebuilt-layout` gives generic key/value pairs, a custom-trained model
  * gives named fields. This module reduces both to the one normalized shape the
  * rest of the system understands.
  *
@@ -161,7 +161,7 @@ interface RawField {
 /**
  * Collects candidate values from both shapes Document Intelligence can return:
  * `documents[].fields` (custom or prebuilt models with a document type) and
- * `keyValuePairs` (the generic `prebuilt-document` output).
+ * `keyValuePairs` (the generic `prebuilt-layout` output).
  *
  * Named fields win over key/value pairs when both are present — a trained
  * model's labelled field is more reliable than a heuristic label match.

@@ -229,7 +229,7 @@ export const DEMO_NODES: DemoNode[] = [
     icon: 'brain',
     status: 'ok',
     detail: [
-      'POST documentModels/prebuilt-document:analyze',
+      'POST documentModels/prebuilt-layout:analyze',
       'Polling operation…',
       'Response validated against schema',
     ],

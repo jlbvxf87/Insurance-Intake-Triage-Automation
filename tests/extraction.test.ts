@@ -122,7 +122,7 @@ describe('Azure response normalization (FR-022)', () => {
   const keyValueResponse = {
     status: 'succeeded',
     analyzeResult: {
-      modelId: 'prebuilt-document',
+      modelId: 'prebuilt-layout',
       keyValuePairs: [
         { key: { content: 'Named Insured' }, value: { content: 'ACME Trucking LLC' }, confidence: 0.98 },
         { key: { content: 'Policy No.' }, value: { content: 'CA-829103' }, confidence: 0.96 },
@@ -306,7 +306,9 @@ describe('Azure adapter (IR-001, IR-003)', () => {
     }).extract(input)
 
     expect(result.ok).toBe(true)
-    expect(calls[0].url).toContain('/documentintelligence/documentModels/prebuilt-document:analyze')
+    expect(calls[0].url).toContain('/documentintelligence/documentModels/prebuilt-layout:analyze')
+    // v4.0 returns key-value pairs only when asked for them.
+    expect(calls[0].url).toContain('features=keyValuePairs')
     expect(calls[0].url).toContain('api-version=2024-11-30')
 
     const headers = calls[0].init?.headers as Record<string, string>

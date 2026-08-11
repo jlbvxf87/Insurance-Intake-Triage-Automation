@@ -66,9 +66,25 @@ export class AzureDocumentIntelligenceAdapter implements ExtractionAdapter {
       }
     }
 
+    /**
+     * Key-value pairs are an opt-in feature on the layout model in API v4.0.
+     *
+     * `prebuilt-document` used to return them by default, but it was removed
+     * in `2024-11-30`; the capability moved to `prebuilt-layout` behind
+     * `features=keyValuePairs`. Requesting layout without the flag returns 200
+     * and no key-value pairs at all, which would look like a document the
+     * service simply could not read — a far more expensive bug to chase than
+     * the 404 that sent us here.
+     *
+     * Custom-trained models return their own fields and reject the flag, so it
+     * is only added for the prebuilt models that accept it.
+     */
+    const wantsKeyValuePairs = /^prebuilt-(layout|document)$/.test(modelId)
+
     const analyzeUrl =
       `${endpoint}/documentintelligence/documentModels/${encodeURIComponent(modelId)}:analyze` +
-      `?api-version=${encodeURIComponent(apiVersion)}`
+      `?api-version=${encodeURIComponent(apiVersion)}` +
+      (wantsKeyValuePairs ? '&features=keyValuePairs' : '')
 
     // One deadline for the whole operation — submit plus polling. A per-request
     // timeout would let a slow poll loop run indefinitely.

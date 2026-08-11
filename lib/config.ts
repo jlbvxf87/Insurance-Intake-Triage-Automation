@@ -123,7 +123,7 @@ export function getConfig(env: EnvSource = process.env): AppConfig {
     azure: {
       endpoint,
       key,
-      modelId: str(env.AZURE_DOCUMENT_INTELLIGENCE_MODEL_ID, 'prebuilt-document'),
+      modelId: str(env.AZURE_DOCUMENT_INTELLIGENCE_MODEL_ID, 'prebuilt-layout'),
       apiVersion: str(env.AZURE_DOCUMENT_INTELLIGENCE_API_VERSION, '2024-11-30'),
       timeoutMs: num(env.AZURE_REQUEST_TIMEOUT_MS, 30_000),
     },
