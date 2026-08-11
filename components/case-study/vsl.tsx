@@ -22,7 +22,7 @@ import { cn } from '@/lib/utils/cn'
 
 const VIDEO_SRC = '/walkthrough.mp4'
 const CAPTIONS_SRC = '/walkthrough.vtt'
-const POSTER_SRC = '/jaron.webp'
+const POSTER_SRC = '/walkthrough-poster.webp'
 
 /**
  * Explicit switch rather than a runtime probe: a HEAD request on every page
@@ -83,29 +83,32 @@ export function Vsl() {
                       className="group absolute inset-0 flex w-full items-center justify-center"
                       aria-label="Play the walkthrough"
                     >
-                      {/* The portrait doubles as the poster. A face is a
-                          stronger invitation to press play than a gradient,
-                          and it answers "who is talking" before the audio
-                          starts. */}
+                      {/* Full-bleed poster. It is already 16:9 and already
+                          carries a face and a wordmark, so cropping it into a
+                          corner would throw away the only frame of this video
+                          that has to work as a still. */}
                       <Image
                         src={POSTER_SRC}
                         alt=""
-                        width={720}
-                        height={720}
+                        fill
+                        sizes="(min-width: 1024px) 55vw, 100vw"
                         priority={false}
-                        className="absolute bottom-0 right-6 h-[92%] w-auto object-contain opacity-90 sm:right-12"
+                        className="object-cover"
                       />
-                      <span className="absolute inset-0 bg-gradient-to-r from-[#0d1117] via-[#0d1117]/85 to-transparent" />
+                      {/* Scrim only where the control sits. A full overlay would
+                          mute the poster; this keeps the label readable over
+                          whatever happens to be in the lower left. */}
+                      <span className="absolute inset-0 bg-gradient-to-t from-[#0d1117]/85 via-[#0d1117]/25 to-transparent" />
 
-                      <span className="relative flex w-full items-center gap-4 px-6 sm:px-10">
-                        <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-[var(--ink-border)] bg-[var(--ink-soft)] transition-colors group-hover:bg-[#21262d]">
+                      <span className="absolute inset-x-0 bottom-0 flex items-center gap-4 px-6 pb-6 sm:px-8 sm:pb-7">
+                        <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-white/25 bg-black/45 backdrop-blur-sm transition-colors group-hover:bg-black/65">
                           <Play className="ml-0.5 h-5 w-5 text-white" aria-hidden="true" />
                         </span>
                         <span className="text-left">
-                          <span className="block text-sm font-medium text-white">
+                          <span className="block text-sm font-medium text-white drop-shadow">
                             Play the walkthrough
                           </span>
-                          <span className="mt-0.5 block text-[12.5px] text-[var(--ink-muted)]">
+                          <span className="mt-0.5 block text-[12.5px] text-white/75 drop-shadow">
                             Jaron Baston · 79 seconds
                           </span>
                         </span>
