@@ -1,0 +1,29 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:08.128
+I wanted to show how I would approach a core business applications problem: reducing manual operational work without removing human judgement.
+
+2
+00:00:09.328 --> 00:00:20.867
+Instead of an employee manually reading a submission, entering the data, checking for duplicates, and deciding where it goes, I built a workflow that handles the repeatable parts automatically.
+
+3
+00:00:22.067 --> 00:00:30.724
+The important part was not just adding AI. I designed the data model, business rules, exception paths, and human-review logic around it.
+
+4
+00:00:31.924 --> 00:00:40.769
+Azure Document Intelligence extracts policy data. Dataverse structures the client and submission records.
+
+5
+00:00:40.769 --> 00:00:52.899
+The workflow checks existing records, flags possible duplicates, applies deterministic routing rules, and sends uncertain cases to human review.
+
+6
+00:00:54.099 --> 00:01:05.145
+I also documented the current and future process, functional requirements, acceptance criteria, and test cases so the system could be maintained and improved.
+
+7
+00:01:06.345 --> 00:01:18.520
+The result is a working example of how I approach business applications: understand the process, structure the data, automate what is repeatable, and keep people involved where judgement is required.
