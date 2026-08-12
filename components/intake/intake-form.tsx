@@ -8,7 +8,7 @@ import { Field, Select, Textarea, TextInput } from '@/components/ui/field'
 import { FileUpload } from '@/components/intake/file-upload'
 import { SubmissionReceipt } from '@/components/intake/submission-receipt'
 import { SampleScenarios } from '@/components/intake/sample-scenarios'
-import type { SampleScenario } from '@/lib/intake/samples'
+import type { scenarioValues } from '@/lib/intake/samples'
 import {
   defaultAcceptedMimeTypes,
   emptyIntakeForm,
@@ -58,8 +58,8 @@ export function IntakeForm({ config }: { config: PublicConfig }) {
     }
   }
 
-  function loadScenario(scenario: SampleScenario, document: File) {
-    setValues({ ...scenario.values })
+  function loadScenario(next: ReturnType<typeof scenarioValues>, document: File) {
+    setValues({ ...next })
     setFile(document)
     setErrors({})
     setFileError(null)

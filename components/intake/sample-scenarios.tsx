@@ -1,8 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Download, FileText, Loader2 } from 'lucide-react'
-import { SAMPLE_SCENARIOS, loadSampleDocument, type SampleScenario } from '@/lib/intake/samples'
+import {
+  SAMPLE_SCENARIOS,
+  loadSampleDocument,
+  pickSubmitter,
+  scenarioValues,
+  type SampleScenario,
+} from '@/lib/intake/samples'
 import { cn } from '@/lib/utils/cn'
 
 /**
@@ -21,18 +27,32 @@ export function SampleScenarios({
   onLoad,
   disabled,
 }: {
-  onLoad: (scenario: SampleScenario, document: File) => void
+  onLoad: (values: ReturnType<typeof scenarioValues>, document: File) => void
   disabled?: boolean
 }) {
   const [loadingId, setLoadingId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+
+  /**
+   * Chosen on first use and then held for the rest of the visit.
+   *
+   * Not during render — a random value would differ between the server and
+   * client markup. Not in an effect either, which is just setState-on-mount
+   * wearing a hat. A ref filled on the first click is both stable and honest
+   * about when the decision actually happens.
+   */
+  const submitterRef = useRef<ReturnType<typeof pickSubmitter> | null>(null)
+  function submitter() {
+    submitterRef.current ??= pickSubmitter()
+    return submitterRef.current
+  }
 
   async function choose(scenario: SampleScenario) {
     setError(null)
     setLoadingId(scenario.id)
     try {
       const document = await loadSampleDocument(scenario)
-      onLoad(scenario, document)
+      onLoad(scenarioValues(scenario, submitter()), document)
     } catch {
       setError(
         'The sample document could not be loaded. You can still fill the form in by hand.',
@@ -118,8 +138,10 @@ export function SampleScenarios({
       )}
 
       <p className="mt-4 text-[12.5px] leading-relaxed text-[var(--subtle)]">
-        Submitting the same scenario twice inside the duplicate window is worth
-        trying too — the second one is flagged for a person rather than routed.
+        Each visit uses a different submitter, so the first run is judged on its
+        own merits. Press the same scenario a second time and the duplicate rule
+        fires — same client, same type, same line of business, inside the
+        window.
       </p>
     </section>
   )
