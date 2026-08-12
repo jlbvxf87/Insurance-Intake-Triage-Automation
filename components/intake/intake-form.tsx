@@ -7,6 +7,8 @@ import { Callout } from '@/components/ui/callout'
 import { Field, Select, Textarea, TextInput } from '@/components/ui/field'
 import { FileUpload } from '@/components/intake/file-upload'
 import { SubmissionReceipt } from '@/components/intake/submission-receipt'
+import { SampleScenarios } from '@/components/intake/sample-scenarios'
+import type { SampleScenario } from '@/lib/intake/samples'
 import {
   defaultAcceptedMimeTypes,
   emptyIntakeForm,
@@ -54,6 +56,14 @@ export function IntakeForm({ config }: { config: PublicConfig }) {
         return next
       })
     }
+  }
+
+  function loadScenario(scenario: SampleScenario, document: File) {
+    setValues({ ...scenario.values })
+    setFile(document)
+    setErrors({})
+    setFileError(null)
+    setFormError(null)
   }
 
   function focusFirstError(fieldErrors: FieldErrors) {
@@ -137,6 +147,8 @@ export function IntakeForm({ config }: { config: PublicConfig }) {
           </Callout>
         </div>
       )}
+
+      <SampleScenarios onLoad={loadScenario} disabled={submitting} />
 
       {/* Contact -------------------------------------------------------- */}
       <fieldset className="flex flex-col gap-5" disabled={submitting}>
