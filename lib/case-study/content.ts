@@ -15,7 +15,16 @@ export const SITE = {
     'An AI-enabled insurance workflow that turns incoming submissions and policy documents into structured, validated, routed records.',
   metadata: 'Azure AI · Dataverse · Power Automate · REST APIs',
   github: 'https://github.com/jlbvxf87/Insurance-Intake-Triage-Automation',
-  resume: 'https://github.com/jlbvxf87',
+  /**
+   * The resume itself, not a GitHub profile. A reader who clicks "Resume"
+   * expecting a document and lands on a repository list has been told the
+   * link was mislabelled — on a page whose argument is that claims should be
+   * checkable, that is an expensive small error.
+   *
+   * This copy carries email but no phone number: a link on a public page gets
+   * scraped, and an application form is where a phone number belongs.
+   */
+  resume: '/Jaron-Baston-Resume.pdf',
   linkedin: 'https://www.linkedin.com/in/jaronbaston',
   email: 'mailto:jaronlbaston87@gmail.com',
 } as const
