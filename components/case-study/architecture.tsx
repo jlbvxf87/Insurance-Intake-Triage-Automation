@@ -14,7 +14,7 @@ export function Architecture() {
         lede="Extraction sits behind an adapter, persistence behind a repository, and the orchestrator depends on neither concretely. That is what lets the whole failure matrix be tested without a network or a database — and what makes swapping the fixture provider for Azure a configuration change."
       />
 
-      <div className="mt-9 grid grid-cols-1 min-w-0 gap-4 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
+      <div className="mt-9 grid grid-cols-1 min-w-0 gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
         <Card className="min-w-0 p-5 sm:p-6">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {ARCHITECTURE_COLUMNS.map((column, columnIndex) => (
@@ -25,18 +25,24 @@ export function Architecture() {
                   {column.items.map((item) => (
                     <li
                       key={item.label}
-                      className="flex min-w-0 items-center gap-2.5 rounded-lg border border-[var(--border)] bg-white px-2.5 py-2"
+                      className="flex h-[66px] min-w-0 items-center gap-2.5 rounded-lg border border-[var(--border)] bg-white px-2.5"
                     >
                       <IconTile
                         name={item.icon as IconName}
                         tone={item.tone as Tone}
                         size="sm"
                       />
-                      {/* min-w-0 lets long service names wrap instead of
+                      {/* min-w-0 lets a long service name wrap instead of
                           setting a min-content floor that widens the whole
                           grid track — the cause of a page-level horizontal
-                          scrollbar below 1024px. */}
-                      <span className="min-w-0 text-[12.5px] leading-tight break-words text-[var(--foreground)]">
+                          scrollbar below 1024px.
+
+                          Wrapping at spaces only. `break-words` was splitting
+                          labels mid-word — "Documen/t", "Datavers/e",
+                          "Dashboar/d" — which reads as a rendering fault
+                          rather than a tight column. No label here contains a
+                          word long enough to need breaking. */}
+                      <span className="min-w-0 text-[12.5px] leading-tight [overflow-wrap:normal] text-[var(--foreground)]">
                         {item.label}
                       </span>
                     </li>

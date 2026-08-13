@@ -129,7 +129,7 @@ export const ARCHITECTURE_COLUMNS = [
   {
     title: 'Services',
     items: [
-      { icon: 'brain', label: 'Azure AI Document Intelligence', tone: 'indigo' },
+      { icon: 'brain', label: 'Azure Document Intelligence', tone: 'indigo' },
       { icon: 'zap', label: 'Power Automate', tone: 'violet' },
       { icon: 'database', label: 'Dataverse', tone: 'green' },
     ],
