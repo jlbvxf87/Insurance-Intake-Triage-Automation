@@ -87,6 +87,8 @@ export interface SampleScenario {
   watchFor: string
   documentPath: string
   documentName: string
+  /** A crop of the top of the page, so the card shows the document rather than describing it. */
+  previewPath: string
   submissionType: string
   lineOfBusiness: string
   description_text: string
@@ -101,6 +103,7 @@ export const SAMPLE_SCENARIOS: readonly SampleScenario[] = [
     watchFor: 'Per-field confidence, and which routing rule fires.',
     documentPath: '/samples/dec-page-clean.pdf',
     documentName: 'dec-page-clean.pdf',
+    previewPath: '/samples/preview-clean.webp',
     submissionType: 'Quote',
     lineOfBusiness: 'Commercial Auto',
     description_text:
@@ -114,6 +117,7 @@ export const SAMPLE_SCENARIOS: readonly SampleScenario[] = [
     watchFor: 'Whether extraction clears the confidence threshold, or stops for a person.',
     documentPath: '/samples/dec-page-scanned.pdf',
     documentName: 'dec-page-scanned.pdf',
+    previewPath: '/samples/preview-scanned.webp',
     submissionType: 'Quote',
     lineOfBusiness: 'Commercial Auto',
     description_text:
@@ -127,6 +131,7 @@ export const SAMPLE_SCENARIOS: readonly SampleScenario[] = [
     watchFor: 'The system reads it perfectly and still refuses to route it.',
     documentPath: '/samples/dec-page-incomplete.pdf',
     documentName: 'dec-page-incomplete.pdf',
+    previewPath: '/samples/preview-incomplete.webp',
     submissionType: 'Quote',
     lineOfBusiness: 'Commercial Auto',
     description_text:

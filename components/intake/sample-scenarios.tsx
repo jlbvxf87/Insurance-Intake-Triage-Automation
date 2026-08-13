@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
+import Image from 'next/image'
 import { Download, FileText, Loader2 } from 'lucide-react'
 import {
   SAMPLE_SCENARIOS,
@@ -71,19 +72,39 @@ export function SampleScenarios({
         Start from a sample
       </h2>
       <p className="mt-1 max-w-2xl text-[13px] leading-relaxed text-[var(--muted)]">
-        Fills the form and attaches a synthetic declarations page, so you can run
-        the workflow without supplying a document of your own. Everything is
-        editable afterwards.
+        Each one fills the form and attaches the document shown, so you can run
+        the workflow without supplying a file of your own. Click a preview to
+        read the whole page. Everything is editable afterwards.
       </p>
 
-      <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
         {SAMPLE_SCENARIOS.map((scenario) => {
           const loading = loadingId === scenario.id
           return (
             <div
               key={scenario.id}
-              className="flex flex-col rounded-lg border border-[var(--border)] bg-white p-4"
+              className="flex min-w-0 flex-col rounded-lg border border-[var(--border)] bg-white p-4"
             >
+              <a
+                href={scenario.documentPath}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group/preview relative mb-4 block w-full overflow-hidden rounded-md border border-[var(--border)] bg-white"
+                aria-label={`Open ${scenario.label} as a PDF`}
+              >
+                <Image
+                  src={scenario.previewPath}
+                  alt={`Top of the ${scenario.label.toLowerCase()}`}
+                  width={900}
+                  height={465}
+                  className="h-auto w-full"
+                />
+                <span className="absolute inset-0 bg-[var(--foreground)]/0 transition-colors group-hover/preview:bg-[var(--foreground)]/5" />
+                <span className="absolute right-2 bottom-2 rounded bg-white/95 px-1.5 py-0.5 text-[11px] font-medium text-[var(--muted)] shadow-sm">
+                  Open PDF
+                </span>
+              </a>
+
               <div className="flex items-start gap-2.5">
                 <FileText
                   className="mt-0.5 h-4 w-4 shrink-0 text-[var(--subtle)]"
@@ -106,7 +127,8 @@ export function SampleScenarios({
                   onClick={() => choose(scenario)}
                   disabled={disabled || loading}
                   className={cn(
-                    'inline-flex h-9 items-center gap-2 rounded-lg bg-[var(--foreground)] px-3.5',
+                    'inline-flex h-9 shrink-0 items-center gap-2 rounded-lg bg-[var(--foreground)] px-3.5',
+                    'whitespace-nowrap',
                     'text-[13px] font-medium text-white transition-colors hover:bg-[#242424]',
                     'disabled:cursor-not-allowed disabled:opacity-45',
                   )}
@@ -115,15 +137,13 @@ export function SampleScenarios({
                   {loading ? 'Loading…' : 'Use this one'}
                 </button>
 
-                {/* The document itself, for anyone who wants to see what the
-                    extractor was actually given. */}
                 <a
                   href={scenario.documentPath}
                   download={scenario.documentName}
                   className="inline-flex items-center gap-1.5 text-[12.5px] text-[var(--muted)] transition-colors hover:text-[var(--foreground)]"
                 >
                   <Download className="h-3.5 w-3.5" aria-hidden="true" />
-                  View the PDF
+                  Download
                 </a>
               </div>
             </div>
