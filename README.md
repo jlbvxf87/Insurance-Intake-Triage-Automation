@@ -5,6 +5,17 @@ documents into structured, validated, routed records.
 
 **Azure AI · Dataverse · Power Automate · REST APIs**
 
+### ▶ [Run it live](https://insurance-intake-triage-automation.vercel.app)
+
+The system is deployed and running against Azure Document Intelligence and a
+hosted Postgres database. [`/intake`](https://insurance-intake-triage-automation.vercel.app/intake)
+offers three sample documents — a clean declarations page, the same page
+degraded by a simulated fax, and a new-business application — so a submission
+can be run end to end without supplying a file. Every run appears in the
+[operations dashboard](https://insurance-intake-triage-automation.vercel.app/ops)
+with its extraction confidence, the rule that routed it, and a step-by-step
+audit log.
+
 > A self-directed case study. This project is not work performed for any
 > insurer or broker, and contains no real customer data — every client,
 > submission, and document in this repository is synthetic.
@@ -27,7 +38,7 @@ documents into structured, validated, routed records.
 | 7 | Operations dashboard | ✅ Complete |
 | 8 | Testing + documentation | ✅ Complete |
 | 9 | Portfolio case-study page | ✅ Complete |
-| 10 | Walkthrough video | 🟡 Section built, recording pending |
+| 10 | Walkthrough video | ✅ Complete |
 
 **188 automated tests passing.** Type-check, lint, and production build clean.
 See [`docs/test-plan.md`](docs/test-plan.md) for recorded results, the five
