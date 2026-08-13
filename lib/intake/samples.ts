@@ -119,6 +119,19 @@ export const SAMPLE_SCENARIOS: readonly SampleScenario[] = [
     description_text:
       'Renewal review for the hauling fleet. The only copy of the declarations page we have is a fax from the prior carrier, attached.',
   },
+  {
+    id: 'incomplete',
+    label: 'A new-business application',
+    description:
+      'A clean application for coverage that has not been placed yet, so it carries no policy number and no carrier — which is what new business actually looks like.',
+    watchFor: 'The system reads it perfectly and still refuses to route it.',
+    documentPath: '/samples/dec-page-incomplete.pdf',
+    documentName: 'dec-page-incomplete.pdf',
+    submissionType: 'Quote',
+    lineOfBusiness: 'Commercial Auto',
+    description_text:
+      'New business submission for the fleet. Coverage has not been placed yet, so the application is attached rather than a declarations page.',
+  },
 ] as const
 
 /** The form values for a scenario, bound to the submitter chosen this session. */

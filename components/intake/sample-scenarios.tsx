@@ -76,7 +76,7 @@ export function SampleScenarios({
         editable afterwards.
       </p>
 
-      <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
+      <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
         {SAMPLE_SCENARIOS.map((scenario) => {
           const loading = loadingId === scenario.id
           return (
